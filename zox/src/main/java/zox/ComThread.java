@@ -1,5 +1,7 @@
 package zox;
 
+import java.io.Console;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Iterator;
@@ -27,6 +29,10 @@ import org.jivesoftware.smack.sasl.provided.SASLPlainMechanism;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration.Builder;
+import org.jivesoftware.smackx.filetransfer.FileTransferListener;
+import org.jivesoftware.smackx.filetransfer.FileTransferManager;
+import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
+import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
 import org.jivesoftware.smackx.offline.OfflineMessageManager;
 import org.jxmpp.jid.DomainBareJid;
 import org.jxmpp.jid.EntityJid;
@@ -120,6 +126,29 @@ public class ComThread extends Thread {
 			xmppConnection.connect();
 
 			xmppConnection.login();
+			
+			// Create the file transfer manager
+			final FileTransferManager manager = FileTransferManager.getInstanceFor(xmppConnection);
+			// Create the listener
+			manager.addFileTransferListener(new FileTransferListener() {
+				public void fileTransferRequest(FileTransferRequest request) {
+				// Check to see if the request should be accepted
+					// Accept it
+					System.out.println("File transfer request");
+					IncomingFileTransfer transfer = request.accept();
+					try {
+						transfer.recieveFile(new File("received_file.pdf"));
+					} catch (SmackException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					//request.reject(); would also be possible ;-)
+				
+			}
+			});
 			Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.accept_all);
 
 			final OfflineMessageManager offlineManager = new OfflineMessageManager(xmppConnection);
