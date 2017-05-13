@@ -38,6 +38,8 @@ import org.jxmpp.jid.DomainBareJid;
 import org.jxmpp.jid.EntityJid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
+import org.mustangproject.ZUGFeRD.ZUGFeRDExporter;
+import org.mustangproject.ZUGFeRD.ZUGFeRDImporter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -137,7 +139,32 @@ public class ComThread extends Thread {
 					System.out.println("File transfer request");
 					IncomingFileTransfer transfer = request.accept();
 					try {
-						transfer.recieveFile(new File("received_file.pdf"));
+						String filename="received_file.pdf";
+						transfer.recieveFile(new File(filename));
+						ZUGFeRDImporter zi=new ZUGFeRDImporter();
+						zi.extract(filename);
+						if (zi.canParse()) {
+							zi.parse();
+							System.out.println("Amounts to "+zi.getAmount());
+							Chat chat=chatmanager.createChat(request.getRequestor().asEntityJidIfPossible(), new ChatMessageListener() {
+
+								public void processMessage(Chat arg0, Message arg1) {
+									// TODO Auto-generated method stub
+									
+								}
+								
+							});
+							try {
+								chat.sendMessage("Thank you for your invoice over "+zi.getAmount());
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							
+							
+						}
+						
+						
 					} catch (SmackException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

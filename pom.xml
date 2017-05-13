@@ -4,6 +4,21 @@
   <artifactId>zox</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <dependencies>
+  
+<dependency>
+  <groupId>commons-logging</groupId>
+  <artifactId>commons-logging</artifactId>
+  <version>1.1.1</version>
+</dependency>
+
+
+<dependency>
+  <groupId>org.zugferd</groupId>
+  <artifactId>mustangproject</artifactId>
+  <version>1.4.0</version>
+  <scope>system</scope>
+  <systemPath>${basedir}/mustang-1.4.0-allinone.jar</systemPath>
+</dependency>
   		<!-- Smack -->
 		<dependency>
 			<groupId>org.igniterealtime.smack</groupId>
