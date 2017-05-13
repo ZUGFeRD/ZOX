@@ -63,7 +63,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>de.usegroup.autonomy.Main</mainClass>
+							<mainClass>zox.Main</mainClass>
 
 
 						</manifest>
