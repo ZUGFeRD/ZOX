@@ -1,10 +1,10 @@
 package zox;
 
-public class Main {
+public class Recipient {
 
 	public static void main(String[] args) {
-System.out.println("Starting up");	
-ComThread ct=new ComThread();
+System.out.println("Starting recipient");	
+RecipientComThread ct=new RecipientComThread();
 ct.run();
 
 	}
