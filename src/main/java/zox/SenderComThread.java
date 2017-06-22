@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import org.jivesoftware.smack.chat.ChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.sasl.SASLMechanism;
 import org.jivesoftware.smack.sasl.provided.SASLPlainMechanism;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
@@ -45,7 +47,9 @@ import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.offline.OfflineMessageManager;
 import org.jxmpp.jid.DomainBareJid;
+import org.jxmpp.jid.EntityFullJid;
 import org.jxmpp.jid.EntityJid;
+import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
 import org.mustangproject.ZUGFeRD.ZUGFeRDExporter;
@@ -131,70 +135,62 @@ public class SenderComThread extends Thread {
 		 * TLSUtils.acceptAllCertificates(conf); conf.setResource("sender");
 		 */
 		xmppConnection = new XMPPTCPConnection(configBuilder.build());
-
+		String fileTransferRecipient = "zox@jochens-air.fritz.box";
 		try {
 			// SASLAuthentication.supportSASLMechanism("PLAIN", 0);
 
 			xmppConnection.connect();
 
 			xmppConnection.login();
-			
-			// Create the file transfer manager
-			final FileTransferManager manager = FileTransferManager.getInstanceFor(xmppConnection);
-			
-//manager.createOutgoingFileTransfer(JidCreate.entityFullFrom("psi","jochens-air.fritz.box","smack"))
-//XmppStringUtils.completeJidFrom(USER, SERV, "mobile")
-			final OutgoingFileTransfer oft=manager.createOutgoingFileTransfer(JidCreate.entityFullFrom("psi","jochens-air.fritz.box","Jochens-Air"));
-			//final OutgoingFileTransfer oft=manager.createOutgoingFileTransfer(JidCreate.entityFullFrom("zox","jochens-air.fritz.box","smack"));
-			File toTransfer=new File("totransfer.pdf");
-			oft.sendFile(toTransfer, "ZUGFeRD invoice");
-				
-			/*FileReader fr = new FileReader(toTransfer);
-	        BufferedReader bufferedReader = new BufferedReader(fr);
-	     String line=null;
-	        while((line = bufferedReader.readLine()) != null) {
-
-	            
-	                System.out.println(line);             
-	            
-	        }*/
-
-			//oft.sendStream(new FileInputStream(toTransfer), "hello.pdf", toTransfer.length(), "ZUGFeRD invoice");
-		    			
-			FileInputStream fisTargetFile = new FileInputStream(toTransfer);
-
-			  //FileTransferNegotiator negotiator = new FileTransferNegotiator();
-            System.out.println("is file transfer negotiatiated  "+FileTransferNegotiator.isServiceEnabled(xmppConnection));
-            
-            
-            new Thread()
-            {
-                public void run() {
-                	while(!oft.isDone()) { 
-                	    System.out.println(oft.getProgress() + " is done!");    
-                	    //System.out.println(transfer.getStreamID() + " is done!"); 
-                	   
-
-                	    try { 
-                	    	currentThread().sleep(100); 
-                	      Thread.yield();
-                	    } 
-                	    catch (InterruptedException e) { 
-                	      // TODO Auto-generated catch block e.printStackTrace(); 
-                	    }
-                	  }
-                	isCancelled=true;
-                	
-                }
-            };
 
 			Presence presence = new Presence(Presence.Type.available);
 			xmppConnection.sendStanza(presence);
+			// Create the file transfer manager
+			final FileTransferManager manager = FileTransferManager.getInstanceFor(xmppConnection);
 
-			do {
+			EntityFullJid fileTransferRecipientWithCurrentService = null;
+
+			Roster roster = Roster.getInstanceFor(xmppConnection);
+
+			if (!roster.isLoaded()) {
+				roster.reloadAndWait();
+
+			}
+
+			Collection<RosterEntry> entries = roster.getEntries();
+			System.out.println("my roster");
+			for (RosterEntry entry : entries) {
+				if (entry.getJid().equals(fileTransferRecipient)) {
+					fileTransferRecipientWithCurrentService = (EntityFullJid) roster.getPresence(entry.getJid())
+							.getFrom();
+
+				}
+
+			}
+			System.out.println("roster end");
+			if (fileTransferRecipientWithCurrentService == null) {
+				throw new Exception("Recipient not found in roster");
+			}
+			// manager.createOutgoingFileTransfer(JidCreate.entityFullFrom("psi","jochens-air.fritz.box","smack"))
+			// XmppStringUtils.completeJidFrom(USER, SERV, "mobile")
+			// final OutgoingFileTransfer
+			// oft=manager.createOutgoingFileTransfer(JidCreate.entityFullFrom("psi","jochens-air.fritz.box","Jochens-Air"));
+			final OutgoingFileTransfer oft = manager
+					.createOutgoingFileTransfer(fileTransferRecipientWithCurrentService);
+			File toTransfer = new File("totransfer.pdf");
+			oft.sendFile(toTransfer, "ZUGFeRD invoice");
+
+			FileInputStream fisTargetFile = new FileInputStream(toTransfer);
+
+			// FileTransferNegotiator negotiator = new FileTransferNegotiator();
+			System.err.println("file transfer negotiable:  " + FileTransferNegotiator.isServiceEnabled(xmppConnection));
+
+			while (!oft.isDone()) {
+				System.out.println(oft.getProgress() + " is done!");
+				// System.out.println(transfer.getStreamID() + " is done!");
 
 				Thread.yield();
-			} while (!isCancelled);
+			}
 			System.out.println("on end ");
 			presence = new Presence(Presence.Type.unavailable);
 			xmppConnection.sendStanza(presence);
@@ -210,8 +206,12 @@ public class SenderComThread extends Thread {
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
+		// We've done our job!
+		System.exit(0);
 	}
 
 }

@@ -50,6 +50,7 @@ public class RecipientComThread extends Thread {
 	private static XMPPTCPConnection xmppConnection;
 	private ChatManager chatmanager;
 	boolean isCancelled = false;
+	private Object lock = new Object();
 
 	public void sendPong(EntityJid participant, Chat c, String requestMessage) {
 		Message m = new Message();
@@ -128,43 +129,42 @@ public class RecipientComThread extends Thread {
 			xmppConnection.connect();
 
 			xmppConnection.login();
-			
+
 			// Create the file transfer manager
 			final FileTransferManager manager = FileTransferManager.getInstanceFor(xmppConnection);
 			// Create the listener
 			manager.addFileTransferListener(new FileTransferListener() {
 				public void fileTransferRequest(FileTransferRequest request) {
-				// Check to see if the request should be accepted
+					// Check to see if the request should be accepted
 					// Accept it
-					System.out.println("File transfer request from "+request.getRequestor().asUnescapedString());
+					System.out.println("File transfer request from " + request.getRequestor().asUnescapedString());
 					IncomingFileTransfer transfer = request.accept();
 					try {
-						String filename="received_file.pdf";
+						String filename = "received_file.pdf";
 						transfer.recieveFile(new File(filename));
-						ZUGFeRDImporter zi=new ZUGFeRDImporter();
+						ZUGFeRDImporter zi = new ZUGFeRDImporter();
 						zi.extract(filename);
 						if (zi.canParse()) {
 							zi.parse();
-							System.out.println("Amounts to "+zi.getAmount());
-							Chat chat=chatmanager.createChat(request.getRequestor().asEntityJidIfPossible(), new ChatMessageListener() {
+							System.out.println("Amounts to " + zi.getAmount());
+							Chat chat = chatmanager.createChat(request.getRequestor().asEntityJidIfPossible(),
+									new ChatMessageListener() {
 
-								public void processMessage(Chat arg0, Message arg1) {
-									// TODO Auto-generated method stub
-									
-								}
-								
-							});
+										public void processMessage(Chat arg0, Message arg1) {
+											// TODO Auto-generated method stub
+
+										}
+
+									});
 							try {
-								chat.sendMessage("Thank you for your invoice over "+zi.getAmount());
+								chat.sendMessage("Thank you for your invoice over " + zi.getAmount());
 							} catch (InterruptedException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-							
-							
+
 						}
-						
-						
+
 					} catch (SmackException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -172,9 +172,9 @@ public class RecipientComThread extends Thread {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					//request.reject(); would also be possible ;-)
-				
-			}
+					// request.reject(); would also be possible ;-)
+
+				}
 			});
 			Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.accept_all);
 
@@ -231,6 +231,16 @@ public class RecipientComThread extends Thread {
 								}
 								if (body.trim().startsWith("<exit")) {
 									isCancelled = true;
+									synchronized (lock) {
+										try {
+											// Do something with the message
+											// here like update some status
+											lock.notify();
+										} catch (Exception e) {
+											e.printStackTrace();
+										}
+
+									}
 								}
 							}
 
@@ -244,8 +254,16 @@ public class RecipientComThread extends Thread {
 			xmppConnection.sendStanza(presence);
 
 			do {
-
 				Thread.yield();
+
+				synchronized (lock) {
+					try {
+						lock.wait();
+						// use the updated status
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 			} while (!isCancelled);
 			System.out.println("on end ");
 			presence = new Presence(Presence.Type.unavailable);
