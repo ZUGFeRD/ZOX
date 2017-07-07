@@ -1,25 +1,45 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.mustangproject</groupId>
-  <artifactId>zox</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <dependencies>
-  
-<dependency>
-  <groupId>commons-logging</groupId>
-  <artifactId>commons-logging</artifactId>
-  <version>1.1.1</version>
-</dependency>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.mustangproject</groupId>
+	<artifactId>zox</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<repositories>
+		<repository>
+			<id>sonatype-oss-public</id>
+			<url>https://oss.sonatype.org/content/groups/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>com.sanityinc</groupId>
+			<artifactId>jargs</artifactId>
+			<version>2.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1.1</version>
+		</dependency>
 
 
-<dependency>
-  <groupId>org.zugferd</groupId>
-  <artifactId>mustangproject</artifactId>
-  <version>1.4.0</version>
-  <scope>system</scope>
-  <systemPath>${basedir}/mustang-1.4.0-allinone.jar</systemPath>
-</dependency>
-  		<!-- Smack -->
+		<dependency>
+			<groupId>org.zugferd</groupId>
+			<artifactId>mustangproject</artifactId>
+			<version>1.4.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/mustang-1.4.0-allinone.jar</systemPath>
+		</dependency>
+		<!-- Smack -->
 		<dependency>
 			<groupId>org.igniterealtime.smack</groupId>
 			<artifactId>smack-core</artifactId>
@@ -51,10 +71,10 @@
 			<version>4.2.0</version>
 		</dependency>
 
-  
-  </dependencies>
-  
-  <build>
+
+	</dependencies>
+
+	<build>
 
 		<plugins>
 
@@ -93,8 +113,10 @@
 					<!-- or whatever version you use -->
 					<source>1.7</source>
 					<target>1.7</target>
+
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 		</plugins>
-		</build>
+	</build>
 </project>

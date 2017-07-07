@@ -1,34 +1,21 @@
 package zox;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.Console;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.pdfbox.io.IOUtils;
 import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.chat.ChatManager;
-import org.jivesoftware.smack.chat.ChatManagerListener;
-import org.jivesoftware.smack.chat.ChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
@@ -38,22 +25,13 @@ import org.jivesoftware.smack.sasl.provided.SASLPlainMechanism;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration.Builder;
-import org.jivesoftware.smack.util.FileUtils;
-import org.jivesoftware.smackx.filetransfer.FileTransferListener;
 import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.filetransfer.FileTransferNegotiator;
-import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
-import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
-import org.jivesoftware.smackx.offline.OfflineMessageManager;
-import org.jxmpp.jid.DomainBareJid;
 import org.jxmpp.jid.EntityFullJid;
 import org.jxmpp.jid.EntityJid;
-import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
-import org.mustangproject.ZUGFeRD.ZUGFeRDExporter;
-import org.mustangproject.ZUGFeRD.ZUGFeRDImporter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -64,6 +42,12 @@ public class SenderComThread extends Thread {
 	private static XMPPTCPConnection xmppConnection;
 	private ChatManager chatmanager;
 	boolean isCancelled = false;
+
+	String username = null;
+	String password = null;
+	String domain = null;
+	String recipient = null;
+	String filename = null;
 
 	public void sendPong(EntityJid participant, Chat c, String requestMessage) {
 		Message m = new Message();
@@ -109,6 +93,24 @@ public class SenderComThread extends Thread {
 	}
 
 	public void run() {
+		
+		if (domain==null) {
+			throw new RuntimeException("Domain must be set before starting");
+		}
+		if (username==null) {
+			throw new RuntimeException("Username must be set before starting");
+		}
+		if (password==null) {
+			throw new RuntimeException("Password must be set before starting");
+		}
+		if (recipient==null) {
+			throw new RuntimeException("Recipient must be set before starting");
+		}
+		if (filename==null) {
+			throw new RuntimeException("Filename must be set before starting");
+		}
+		
+		
 		SASLAuthentication.unBlacklistSASLMechanism("PLAIN");
 		SASLPlainMechanism newsasl = new SASLPlainMechanism();
 		SASLAuthentication.registerSASLMechanism(newsasl);
@@ -124,18 +126,17 @@ public class SenderComThread extends Thread {
 		configBuilder.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
 		configBuilder.setDebuggerEnabled(true);
 		try {
-			configBuilder.setXmppDomain(JidCreate.domainBareFrom("jochens-air.fritz.box"));
+			configBuilder.setXmppDomain(JidCreate.domainBareFrom(domain));
 		} catch (XmppStringprepException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
-		configBuilder.setUsernameAndPassword("zender", "zender");
+		configBuilder.setUsernameAndPassword(username, password);
 		/*
 		 * TLSUtils.acceptAllCertificates(conf); conf.setResource("sender");
 		 */
 		xmppConnection = new XMPPTCPConnection(configBuilder.build());
-		String fileTransferRecipient = "zox@jochens-air.fritz.box";
 		try {
 			// SASLAuthentication.supportSASLMechanism("PLAIN", 0);
 
@@ -160,7 +161,7 @@ public class SenderComThread extends Thread {
 			Collection<RosterEntry> entries = roster.getEntries();
 			System.out.println("my roster");
 			for (RosterEntry entry : entries) {
-				if (entry.getJid().equals(fileTransferRecipient)) {
+				if (entry.getJid().equals(recipient)) {
 					fileTransferRecipientWithCurrentService = (EntityFullJid) roster.getPresence(entry.getJid())
 							.getFrom();
 
@@ -177,10 +178,12 @@ public class SenderComThread extends Thread {
 			// oft=manager.createOutgoingFileTransfer(JidCreate.entityFullFrom("psi","jochens-air.fritz.box","Jochens-Air"));
 			final OutgoingFileTransfer oft = manager
 					.createOutgoingFileTransfer(fileTransferRecipientWithCurrentService);
-			File toTransfer = new File("totransfer.pdf");
+			File toTransfer = new File(filename);
+			
+			
 			oft.sendFile(toTransfer, "ZUGFeRD invoice");
 
-			FileInputStream fisTargetFile = new FileInputStream(toTransfer);
+			//FileInputStream fisTargetFile = new FileInputStream(toTransfer);
 
 			// FileTransferNegotiator negotiator = new FileTransferNegotiator();
 			System.err.println("file transfer negotiable:  " + FileTransferNegotiator.isServiceEnabled(xmppConnection));
@@ -212,6 +215,52 @@ public class SenderComThread extends Thread {
 		}
 		// We've done our job!
 		System.exit(0);
+	}
+	
+
+	public String getUsername() {
+		return username;
+	}
+
+	public SenderComThread setUsername(String username) {
+		this.username = username;
+		return this;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public SenderComThread setPassword(String password) {
+		this.password = password;
+		return this;
+	}
+
+	public String getDomain() {
+		return domain;
+	}
+
+	public SenderComThread setDomain(String domain) {
+		this.domain = domain;
+		return this;
+	}	
+
+	public String getRecipient() {
+		return domain;
+	}
+
+	public SenderComThread setRecipient(String recipient) {
+		this.recipient = recipient;
+		return this;
+	}
+	
+	public String getFilename() {
+		return filename;
+	}
+
+	public SenderComThread setFilename(String filename) {
+		this.filename = filename;
+		return this;
 	}
 
 }

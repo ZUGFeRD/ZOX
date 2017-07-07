@@ -7,6 +7,7 @@ import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.management.RuntimeErrorException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -52,6 +53,10 @@ public class RecipientComThread extends Thread {
 	boolean isCancelled = false;
 	private Object lock = new Object();
 
+	String username = null;
+	String password = null;
+	String domain = null;
+
 	public void sendPong(EntityJid participant, Chat c, String requestMessage) {
 		Message m = new Message();
 		m.setTo(participant);
@@ -96,6 +101,16 @@ public class RecipientComThread extends Thread {
 	}
 
 	public void run() {
+
+		if (domain==null) {
+			throw new RuntimeException("Domain must be set before starting");
+		}
+		if (username==null) {
+			throw new RuntimeException("Username must be set before starting");
+		}
+		if (password==null) {
+			throw new RuntimeException("Password must be set before starting");
+		}
 		SASLAuthentication.unBlacklistSASLMechanism("PLAIN");
 		SASLPlainMechanism newsasl = new SASLPlainMechanism();
 		SASLAuthentication.registerSASLMechanism(newsasl);
@@ -111,13 +126,13 @@ public class RecipientComThread extends Thread {
 		configBuilder.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
 		configBuilder.setDebuggerEnabled(true);
 		try {
-			configBuilder.setXmppDomain(JidCreate.domainBareFrom("jochens-air.fritz.box"));
+			configBuilder.setXmppDomain(JidCreate.domainBareFrom(domain));
 		} catch (XmppStringprepException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
-		configBuilder.setUsernameAndPassword("zox", "zox");
+		configBuilder.setUsernameAndPassword(username, password);
 		/*
 		 * TLSUtils.acceptAllCertificates(conf); conf.setResource("sender");
 		 */
@@ -282,6 +297,33 @@ public class RecipientComThread extends Thread {
 			e.printStackTrace();
 		}
 
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public RecipientComThread setUsername(String username) {
+		this.username = username;
+		return this;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public RecipientComThread setPassword(String password) {
+		this.password = password;
+		return this;
+	}
+
+	public String getDomain() {
+		return domain;
+	}
+
+	public RecipientComThread setDomain(String domain) {
+		this.domain = domain;
+		return this;
 	}
 
 }
