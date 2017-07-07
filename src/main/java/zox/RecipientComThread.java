@@ -1,13 +1,11 @@
 package zox;
 
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.management.RuntimeErrorException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,12 +14,11 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
-import org.jivesoftware.smack.chat.Chat;
-import org.jivesoftware.smack.chat.ChatManager;
-import org.jivesoftware.smack.chat.ChatManagerListener;
-import org.jivesoftware.smack.chat.ChatMessageListener;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.chat2.Chat;
+import org.jivesoftware.smack.chat2.ChatManager;
+import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
@@ -35,11 +32,10 @@ import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
 import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
 import org.jivesoftware.smackx.offline.OfflineMessageManager;
-import org.jxmpp.jid.DomainBareJid;
+import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.EntityJid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
-import org.mustangproject.ZUGFeRD.ZUGFeRDExporter;
 import org.mustangproject.ZUGFeRD.ZUGFeRDImporter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -87,14 +83,18 @@ public class RecipientComThread extends Thread {
 		}
 
 		m.setBody("<pong" + idResponseAttr + "/>");
-		if (c == null) {
-			c = chatmanager.createChat(participant, null);
-		}
+
 		try {
-			c.sendMessage(m);
+			if (c == null) {
+				c = chatmanager.chatWith(JidCreate.entityBareFrom(participant));
+			}
+			c.send(m);
 		} catch (NotConnectedException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (XmppStringprepException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -102,13 +102,13 @@ public class RecipientComThread extends Thread {
 
 	public void run() {
 
-		if (domain==null) {
+		if (domain == null) {
 			throw new RuntimeException("Domain must be set before starting");
 		}
-		if (username==null) {
+		if (username == null) {
 			throw new RuntimeException("Username must be set before starting");
 		}
-		if (password==null) {
+		if (password == null) {
 			throw new RuntimeException("Password must be set before starting");
 		}
 		SASLAuthentication.unBlacklistSASLMechanism("PLAIN");
@@ -162,17 +162,9 @@ public class RecipientComThread extends Thread {
 						if (zi.canParse()) {
 							zi.parse();
 							System.out.println("Amounts to " + zi.getAmount());
-							Chat chat = chatmanager.createChat(request.getRequestor().asEntityJidIfPossible(),
-									new ChatMessageListener() {
-
-										public void processMessage(Chat arg0, Message arg1) {
-											// TODO Auto-generated method stub
-
-										}
-
-									});
+							Chat chat = chatmanager.chatWith(request.getRequestor().asEntityBareJidIfPossible());
 							try {
-								chat.sendMessage("Thank you for your invoice over " + zi.getAmount());
+								chat.send("Thank you for your invoice over " + zi.getAmount());
 							} catch (InterruptedException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -207,7 +199,7 @@ public class RecipientComThread extends Thread {
 				System.out.println("Number of offline messages:: " + offlineManager.getMessageCount());
 
 				if (offlineManager.getMessageCount() > 0) {
-					List offMessages = offlineManager.getMessages();
+					List<Message> offMessages = offlineManager.getMessages();
 					Iterator<org.jivesoftware.smack.packet.Message> it = offMessages.iterator();
 
 					while (it.hasNext()) {
@@ -230,41 +222,37 @@ public class RecipientComThread extends Thread {
 					System.out.println("Rec message");
 				}
 			};
-			chatmanager.addChatListener(new ChatManagerListener() {
-
-				public void chatCreated(Chat arg0, boolean arg1) {
-
-					arg0.addMessageListener(new ChatMessageListener() {
-
-						public void processMessage(Chat theChat, Message theMessage) {
-							// TODO Auto-generated method stub
-							final String body = theMessage.getBody();
-							if (body != null) {
-								if (body.trim().startsWith("<ping")) {
-									sendPong(theChat.getParticipant(), theChat, body);
-
-								}
-								if (body.trim().startsWith("<exit")) {
-									isCancelled = true;
-									synchronized (lock) {
-										try {
-											// Do something with the message
-											// here like update some status
-											lock.notify();
-										} catch (Exception e) {
-											e.printStackTrace();
-										}
-
-									}
-								}
-							}
+			chatmanager.addIncomingListener(new IncomingChatMessageListener() {
+				
+				@Override
+				public void newIncomingMessage(EntityBareJid from, Message theMessage, Chat theChat) {
+					// TODO Auto-generated method stub
+					// TODO Auto-generated method stub
+					final String body = theMessage.getBody();
+					if (body != null) {
+						if (body.trim().startsWith("<ping")) {
+							
+							sendPong(theChat.getXmppAddressOfChatPartner(), theChat, body);
 
 						}
-					});
+						if (body.trim().startsWith("<exit")) {
+							isCancelled = true;
+							synchronized (lock) {
+								try {
+									// Do something with the message
+									// here like update some status
+									lock.notify();
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+
+							}
+						}
+					}
 
 				}
 			});
-
+			
 			Presence presence = new Presence(Presence.Type.available);
 			xmppConnection.sendStanza(presence);
 

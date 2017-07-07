@@ -14,8 +14,8 @@ import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.chat.Chat;
-import org.jivesoftware.smack.chat.ChatManager;
+import org.jivesoftware.smack.chat2.Chat;
+import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
@@ -79,14 +79,18 @@ public class SenderComThread extends Thread {
 		}
 
 		m.setBody("<pong" + idResponseAttr + "/>");
-		if (c == null) {
-			c = chatmanager.createChat(participant, null);
-		}
+		
 		try {
-			c.sendMessage(m);
+			if (c == null) {
+				c = chatmanager.chatWith(JidCreate.entityBareFrom(participant));
+			}
+			c.send(m);
 		} catch (NotConnectedException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (XmppStringprepException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
