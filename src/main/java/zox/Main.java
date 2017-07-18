@@ -3,13 +3,13 @@ package zox;
 import com.sanityinc.jargs.CmdLineParser;
 import com.sanityinc.jargs.CmdLineParser.Option;
 
-public class Sender {
+public class Main {
 	private static void printUsage() {
 		System.err.println(getUsage());
 	}
 
 	private static String getUsage() {
-		return "Usage: Sender [-d,--domain] [-u,--username] [-p,--password] [-r,--recipient] | [-h,--help]\r\n";
+		return "Usage: zox [-a,--action=receive|send]  [-p,--password]  [-d,--domain] [-u,--username] [-p,--password] [-r,--recipient] [-f,--filename] | [-h,--help]\r\n";
 	}
 
 	private static void printHelp() {
@@ -18,6 +18,7 @@ public class Sender {
 
 	public static void main(String[] args) {
 		CmdLineParser parser = new CmdLineParser();
+		Option<String> actionOption = parser.addStringOption('a', "action");
 		Option<String> usernameOption = parser.addStringOption('u', "username");
 		Option<String> passwordOption = parser.addStringOption('p', "password");
 		Option<String> domainOption = parser.addStringOption('d', "domain");
@@ -38,6 +39,7 @@ public class Sender {
 			System.exit(2);
 		}
 
+		String action = parser.getOptionValue(actionOption);
 		String username = parser.getOptionValue(usernameOption);
 		String password = parser.getOptionValue(passwordOption);
 		String domain = parser.getOptionValue(domainOption);
@@ -48,12 +50,19 @@ public class Sender {
 
 		if (helpRequested) {
 			printHelp();
-		} else if ((username==null)||(password==null)||(domain==null)||(recipient==null)) {
+		} else if ((username==null)||(password==null)||(domain==null)) {
 			printUsage();
-		} else {
+		} if (action.equalsIgnoreCase("send")) {
 			System.out.println("Starting sender");
 			SenderComThread ct = new SenderComThread();
 			ct.setDomain(domain).setUsername(username).setPassword(password).setRecipient(recipient).setFilename(filename);
+			
+			ct.run();
+		
+		} else {
+			System.out.println("Starting receiver");
+			RecipientComThread ct = new RecipientComThread();
+			ct.setDomain(domain).setUsername(username).setPassword(password);
 			
 			ct.run();
 		
