@@ -14,6 +14,7 @@ import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.XMPPException;
+
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.packet.Message;
@@ -167,7 +168,7 @@ public class SenderComThread extends Thread {
 			for (RosterEntry entry : entries) {
 				if (entry.getJid().equals(recipient)) {
 					fileTransferRecipientWithCurrentService = (EntityFullJid) roster.getPresence(entry.getJid())
-							.getFrom();
+							.getFrom().asEntityFullJidIfPossible();
 
 				}
 
