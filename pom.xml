@@ -99,7 +99,7 @@
 	<build>
 		<resources>
 			<resource>
-				<directory>src/main/java</directory>
+				<directory>src/main/java/resources</directory>
 			</resource>
 		</resources>
 		<plugins>
@@ -151,6 +151,9 @@
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
                 </excludes>
+                 <!--  includes 
+                    <include>assets/**</include>
+                </includes !-->
             </filter>
         </filters>
     </configuration>
@@ -163,6 +166,12 @@
             <configuration>
                 <transformers>
                     <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <!--  transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                                     <resource>assets/index.htm</resource>
+                                    <file>assets/index.htm</file>
+                                </transformer -->
+                             
+                
                     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                         <mainClass>zox.HelloWorldApplication</mainClass>
                     </transformer>
