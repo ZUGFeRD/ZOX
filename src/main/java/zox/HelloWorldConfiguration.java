@@ -9,6 +9,13 @@ public class HelloWorldConfiguration extends Configuration {
 
     @NotEmpty
     private String defaultName = "Stranger";
+    
+    @NotEmpty
+    private String username = "";
+    @NotEmpty
+    private String domain = "";
+    @NotEmpty
+    private String password = "";
 
     @JsonProperty
     public String getTemplate() {
@@ -23,6 +30,20 @@ public class HelloWorldConfiguration extends Configuration {
     @JsonProperty
     public String getDefaultName() {
         return defaultName;
+    }
+
+    @JsonProperty
+    public String getUsername() {
+        return username;
+    }
+
+    @JsonProperty
+    public String getDomain() {
+        return domain;
+    }
+    
+    public String getPassword() {
+        return password;
     }
 
     @JsonProperty

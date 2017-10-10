@@ -19,7 +19,7 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
     @Override
     public void initialize(Bootstrap<HelloWorldConfiguration> bootstrap) {
     		bootstrap.addBundle(new AssetsBundle("/assets/", "/"));
-    		 bootstrap.addBundle(new ViewBundle<HelloWorldConfiguration>());
+    		bootstrap.addBundle(new ViewBundle<HelloWorldConfiguration>());
     }
 
     @Override
@@ -30,6 +30,16 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
     		        configuration.getDefaultName()
     		    );
     		    environment.jersey().register(resource);
+    		    
+    	  final PersonResource per=new PersonResource();
+		    environment.jersey().register(per);
+		    
+	    	System.err.println("deb starting sender with domain "+configuration.getDomain()+" username "+configuration.getUsername());
+	        RecipientComThread ct = new RecipientComThread();
+			ct.setDomain(configuration.getDomain()).setUsername(configuration.getUsername()).setPassword(configuration.getPassword());
+			
+			ct.run();
+
     }
 
 }
