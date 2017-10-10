@@ -16,17 +16,24 @@ public class HelloWorldResource {
     private final String template;
     private final String defaultName;
     private final AtomicLong counter;
+    private ISupplierDAO dao;
 
-    public HelloWorldResource(String template, String defaultName) {
+    public HelloWorldResource(String template, String defaultName, ISupplierDAO dao) {
         this.template = template;
         this.defaultName = defaultName;
         this.counter = new AtomicLong();
+        this.dao=dao;
     }
 
     @GET
     @Timed
     public Saying sayHello(@QueryParam("name") Optional<String> name) {
         final String value = String.format(template, name.orElse(defaultName));
+        dao.createSomethingTable();
+        dao.insert(1, "Schalalala");
+       
+        
         return new Saying(counter.incrementAndGet(), value);
+        
     }
 }
