@@ -29,8 +29,7 @@ public class HelloWorldResource {
     @Timed
     public Saying sayHello(@QueryParam("name") Optional<String> name) {
         final String value = String.format(template, name.orElse(defaultName));
-        dao.createSomethingTable();
-        dao.insert(1, "Schalalala");
+        dao.insert("Schalalala");
        
         
         return new Saying(counter.incrementAndGet(), value);

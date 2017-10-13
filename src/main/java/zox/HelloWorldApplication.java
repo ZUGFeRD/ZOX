@@ -2,6 +2,7 @@ package zox;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.function.IntSupplier;
 
@@ -37,22 +38,40 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 		
 		final DBIFactory factory = new DBIFactory();
 	    final DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(), "derby");
-	   /* try (Handle h = jdbi.open()) {
+	    
+	    boolean tableExists=false;
+	    final ISupplierDAO dao = jdbi.onDemand(ISupplierDAO.class);
+	    try (Handle h = jdbi.open()) {
 	    	  try (Connection c = h.getConnection()) {
 	    	    try (ResultSet tables = c.getMetaData().getColumns(null, "%", "%", "%")) {
 	    	      // loop over columns/tables here...
-	    	    	do {
+	    	    	ResultSetMetaData rsmd = tables.getMetaData();
+	    	    	 int columnsNumber = rsmd.getColumnCount();
+	    	    	System.err.println("***********************************");
+	    	    	while (tables.next()) {
+/*	    	    		 for (int i = 1; i <= columnsNumber; i++) {
+	    	    	           if (i > 1) System.out.print(",  ");
+	    	    	           String columnValue = tables.getString(i);
+	    	    	           System.out.print(i+":"+columnValue + " " + rsmd.getColumnName(i));
+	    	    	       }*/
 
-		    	    	System.err.println(tables.getString(0));
+	    	 	    	    	       System.out.println(tables.getString(3));
+	    	 	    	    	       if (tables.getString(3).equals("SOMETHING")) {
+	    	 	    	    	    	   tableExists=true;
+	    	 	    	    	       }
+	    	    	     }
+	    	    	if (!tableExists) {
+	    	    		dao.createSomethingTable();
+	    	            
 	    	    	}
-	    	    	while (tables.next());
+	    	    	System.err.println("***********************************");
+	    	    	
 	    	    }
 	    	  } catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	    	}*/
-	    final ISupplierDAO dao = jdbi.onDemand(ISupplierDAO.class);
+	    	}
 		
 		final HelloWorldResource resource = new HelloWorldResource(configuration.getTemplate(),
 				configuration.getDefaultName(), dao);
@@ -65,7 +84,7 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 		ct.setDomain(configuration.getDomain()).setUsername(configuration.getUsername())
 				.setPassword(configuration.getPassword());
 
-		ct.run();
+		ct.start();
 
 	}
 

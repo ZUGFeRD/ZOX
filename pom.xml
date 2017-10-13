@@ -2,6 +2,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	
 	<!-- compile with /opt/local/bin/mvn clean package, start with java -jar target/zox-0.2.0-SNAPSHOT.jar server hello-world.yml
+				derby command line tool java -cp target/zox-0.2.1-SNAPSHOT.jar org.apache.derby.tools.ij
+					ij> protocol 'jdbc:derby:';
+					ij> connect 'embeddedDerbyDataDirectory';
 	 -->
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.mustangproject</groupId>
