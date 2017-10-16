@@ -74,7 +74,9 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 	    	}
 		
 		final HelloWorldResource resource = new HelloWorldResource(configuration.getTemplate(),
-				configuration.getDefaultName(), dao);
+				configuration.getDefaultName(),  configuration.getBank_code(), configuration.getBank_account(), configuration.getBank_user(),
+				configuration.getBank_rdhfile(), configuration.getBank_rdhpassphrase(), configuration.getBank_url(),
+				dao);
 		environment.jersey().register(resource);
 
 

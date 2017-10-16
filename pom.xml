@@ -9,7 +9,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.mustangproject</groupId>
 	<artifactId>zox</artifactId>
-	<version>0.2.1-SNAPSHOT</version>
+	<version>0.2.3-SNAPSHOT</version>
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
@@ -92,6 +92,14 @@
 		</dependency>
 		
 		<!--  end persistence -->
+		<!-- banking -->		
+		<dependency>
+  			<groupId>com.github.hbci4j</groupId>
+   			<artifactId>hbci4j-core</artifactId>
+   			<version>3.0.9</version>
+		</dependency>
+		<!-- end banking -->		
+
 		<dependency>
 			<groupId>io.dropwizard</groupId>
 			<artifactId>dropwizard-views</artifactId>

@@ -5,6 +5,12 @@ defaultName: Stranger
 username: zox
 domain: jochens-air.fritz.box
 password: zox
+bank_rdhfile: /Users/jstaerk/Library/jameica/hibiscus/hibiscus-1503133386810.rdh
+bank_rdhpassphrase: secret
+bank_account: secret
+bank_code: 50040000
+bank_user: 8186698638
+bank_url: hbci.commerzbank.de
 
 server:
   rootPath: '/api/*'
