@@ -1,18 +1,27 @@
 package zox;
 
 import com.codahale.metrics.annotation.Timed;
+import com.scottescue.dropwizard.entitymanager.UnitOfWork;
 
+import io.dropwizard.jersey.params.LongParam;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Persistence;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.concurrent.atomic.AtomicLong;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.kapott.hbci.GV.HBCIJob;
 import org.kapott.hbci.GV_Result.GVRKUms;
 import org.kapott.hbci.GV_Result.GVRKUms.UmsLine;
@@ -29,6 +38,7 @@ public class HelloWorldResource {
     private final String defaultName;
     private final AtomicLong counter;
     private ISupplierDAO dao;
+    private EntityManager entityManager;
 	private Logger log=Logger.getLogger(HBCI.class);
     HBCI hbci =null;
     Konto bankAccount;
@@ -36,7 +46,8 @@ public class HelloWorldResource {
     public HelloWorldResource(String template, String defaultName,
     		String bank_code, String bank_account, String bank_user,
 			String bank_rdhfile, String bank_rdhpassphrase, String bank_url,
-    		ISupplierDAO dao) {
+    		ISupplierDAO dao, EntityManager em) {
+    		this.entityManager=em;
         this.template = template;
         this.defaultName = defaultName;
         this.counter = new AtomicLong();
@@ -46,16 +57,29 @@ public class HelloWorldResource {
 		bankAccount = new Konto(bank_code, bank_account);
 
     }
+    
+    
 
     @GET
     @Timed
-    public Saying sayHello(@QueryParam("name") Optional<String> name) {
+    @UnitOfWork(transactional = true)
+     public Saying sayHello(@QueryParam("name") Optional<String> name) {
         final String value = String.format(template, name.orElse(defaultName));
         log.info("dao insert");
         
         dao.insert("Schalalala");
-        log.info("hbci4java");
-
+        log.info("Entity manager insert");
+        Person p=new Person();
+        p.setName("Jochen");
+        p.setEmail("jstaerk@usegroup.de");
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
+        
+        p.setBirthday(dtf.parseDateTime("1980-10-31"));
+        entityManager.persist(p);
+        entityManager.flush();
+        
+/*
+ *   log.info("hbci4java");
 		HBCIJob job = hbci.newJob("KUmsAll"); // nächster Auftrag ist Saldenabfrage //$NON-NLS-1$
 		job.setParam("my", bankAccount); // Kontonummer für Saldenabfrage //$NON-NLS-1$
 		job.setParam("startdate", "2017-10-01"); //$NON-NLS-1$
@@ -89,9 +113,9 @@ public class HelloWorldResource {
 						umsLine.value.getLongValue());
 				i++;
 			}
-
 		}
 
+*/
 
         
         return new Saying(counter.incrementAndGet(), value);

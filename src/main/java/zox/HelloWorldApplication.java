@@ -6,11 +6,17 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.function.IntSupplier;
 
+import javax.persistence.EntityManager;
+
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 
+import com.scottescue.dropwizard.entitymanager.EntityManagerBundle;
+import com.scottescue.dropwizard.entitymanager.ScanningEntityManagerBundle;
+
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
+import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -25,11 +31,20 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 	public String getName() {
 		return "hello-world";
 	}
-
+	
+	private final EntityManagerBundle<HelloWorldConfiguration> entityManagerBundle = 
+	        new ScanningEntityManagerBundle<HelloWorldConfiguration>("zox") { /*zox is the package to be scanned for JPA annotations*/
+	    @Override
+	    public DataSourceFactory getDataSourceFactory(HelloWorldConfiguration configuration) {
+	        return configuration.getDataSourceFactory();
+	    }
+	};
+	
 	@Override
 	public void initialize(Bootstrap<HelloWorldConfiguration> bootstrap) {
 		bootstrap.addBundle(new AssetsBundle("/assets/", "/"));
 		bootstrap.addBundle(new ViewBundle<HelloWorldConfiguration>());
+		bootstrap.addBundle(entityManagerBundle);
 	}
 
 	@Override
@@ -73,13 +88,13 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 			}
 	    	}
 		
+		 final EntityManager entityManager = entityManagerBundle.getSharedEntityManager();
 		final HelloWorldResource resource = new HelloWorldResource(configuration.getTemplate(),
 				configuration.getDefaultName(),  configuration.getBank_code(), configuration.getBank_account(), configuration.getBank_user(),
 				configuration.getBank_rdhfile(), configuration.getBank_rdhpassphrase(), configuration.getBank_url(),
-				dao);
+				dao, entityManager);
 		environment.jersey().register(resource);
-
-
+		   
 		System.err.println("deb starting sender with domain " + configuration.getDomain() + " username "
 				+ configuration.getUsername());
 		RecipientComThread ct = new RecipientComThread();
