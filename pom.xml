@@ -8,7 +8,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.mustangproject</groupId>
 	<artifactId>zox</artifactId>
-	<version>0.2.4-SNAPSHOT</version>
+	<version>0.2.5-SNAPSHOT</version>
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
@@ -152,7 +152,11 @@
 			<artifactId>smack-tcp</artifactId>
 			<version>4.2.0</version>
 		</dependency>
-
+		<dependency>
+		  <groupId>com.warrenstrange</groupId>
+		  <artifactId>googleauth</artifactId>
+		  <version>1.1.2</version>
+		</dependency>
 
 	</dependencies>
 

@@ -89,11 +89,13 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 	    	}
 		
 		 final EntityManager entityManager = entityManagerBundle.getSharedEntityManager();
-		final HelloWorldResource resource = new HelloWorldResource(configuration.getTemplate(),
-				configuration.getDefaultName(),  configuration.getBank_code(), configuration.getBank_account(), configuration.getBank_user(),
-				configuration.getBank_rdhfile(), configuration.getBank_rdhpassphrase(), configuration.getBank_url(),
-				dao, entityManager);
-		environment.jersey().register(resource);
+			final HelloWorldResource resource = new HelloWorldResource(configuration.getTemplate(),
+					configuration.getDefaultName(),  configuration.getBank_code(), configuration.getBank_account(), configuration.getBank_user(),
+					configuration.getBank_rdhfile(), configuration.getBank_rdhpassphrase(), configuration.getBank_url(),
+					dao, entityManager);
+			environment.jersey().register(resource);
+			final AuthResource authr = new AuthResource(entityManager);
+			environment.jersey().register(authr);
 		   
 		System.err.println("deb starting sender with domain " + configuration.getDomain() + " username "
 				+ configuration.getUsername());
