@@ -98,13 +98,15 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 					configuration.getBank_rdhfile(), configuration.getBank_rdhpassphrase(), configuration.getBank_url(),
 					dao, entityManager);
 			environment.jersey().register(resource);
+			final TestResource testr = new TestResource(entityManager);
+			environment.jersey().register(testr);
 			final AuthResource authr = new AuthResource(entityManager);
 			environment.jersey().register(authr);
 			environment.jersey().register(new AuthDynamicFeature(
 		            new BasicCredentialAuthFilter.Builder<Person>()
 		                .setAuthenticator(new UserAuthenticator())
 		                .setAuthorizer(new UserAuthorizer())
-		                .setRealm("SUPER SECRET STUFF")
+		                .setRealm("Corridors Administration")
 		                .buildAuthFilter()));
 		    environment.jersey().register(RolesAllowedDynamicFeature.class);
 		    //If you want to use @Auth to inject a custom Principal type into your resource

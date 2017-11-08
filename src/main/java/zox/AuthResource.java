@@ -1,5 +1,8 @@
 package zox;
 
+import java.io.File;
+import java.io.IOException;
+
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
@@ -34,7 +37,7 @@ public class AuthResource {
 	@RolesAllowed("ADMIN")
 	@UnitOfWork(transactional = true)
 	public AuthView sayHello(@PathParam("id") String id) {
-
+		
 		if (id.equals("")) {
 			gAuth = new GoogleAuthenticator();
 			key = gAuth.createCredentials();

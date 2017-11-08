@@ -8,7 +8,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.mustangproject</groupId>
 	<artifactId>zox</artifactId>
-	<version>0.2.6-SNAPSHOT</version>
+	<version>0.2.7-SNAPSHOT</version>
 	<developers>
 		<developer>
 			<id>jstaerk</id>
@@ -37,6 +37,10 @@
 			<id>mustang-mvn-repo</id>
 			<url>https://raw.github.com/ZUGFeRD/mustangproject/mvn-repo/</url>
 		</repository>
+		<repository>
+      		<id>jgit-repository</id>
+      		<url>https://repo.eclipse.org/content/groups/releases/</url>
+    		</repository>
 	</repositories>
 
 	<dependencies>
@@ -96,7 +100,12 @@
 			<version>3.0.9</version>
 		</dependency>
 		<!-- end banking -->
-
+		<dependency>
+		    <groupId>org.eclipse.jgit</groupId>
+		    <artifactId>org.eclipse.jgit</artifactId>
+		    <version>4.9.0.201710071750-r</version>
+	    </dependency>
+	  
 		<dependency>
 			<groupId>io.dropwizard</groupId>
 			<artifactId>dropwizard-views</artifactId>
