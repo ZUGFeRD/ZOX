@@ -7,13 +7,23 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.joda.time.DateTime;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import io.dropwizard.auth.PrincipalImpl;
 
 @Entity
 @Table(name = "people")
-public class Person {
-    @Id @GeneratedValue
+public class Person extends PrincipalImpl {
+    public Person(String name) {
+		super(name);
+		setName(name);
+		// TODO Auto-generated constructor stub
+	}
+    public Person() {
+		super("");
+	}
+
+	@Id @GeneratedValue
     private int ID; 
     
     @Column

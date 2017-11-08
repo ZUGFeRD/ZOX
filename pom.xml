@@ -8,15 +8,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.mustangproject</groupId>
 	<artifactId>zox</artifactId>
-	<version>0.2.5-SNAPSHOT</version>
-	<licenses>
-		<license>
-			<name>Apache License, Version 2.0</name>
-			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-			<comments>A business-friendly OSS license</comments>
-		</license>
-	</licenses>
+	<version>0.2.6-SNAPSHOT</version>
 	<developers>
 		<developer>
 			<id>jstaerk</id>
@@ -120,6 +112,11 @@
 			<artifactId>dropwizard-assets</artifactId>
 			<version>${dropwizard.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>io.dropwizard</groupId>
+			<artifactId>dropwizard-auth</artifactId>
+			<version>${dropwizard.version}</version>
+		</dependency>
 
 		<!-- Smack -->
 		<dependency>
@@ -168,27 +165,6 @@
 		</resources>
 		<plugins>
 
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>zox.Main</mainClass>
-						</manifest>
-					</archive>
-					<dependencySets>
-						<dependencySet>
-							<includes>
-								<include>org/mustangproject/ZUGFeRD/**</include>
-							</includes>
-						</dependencySet>
-					</dependencySets>
-
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>

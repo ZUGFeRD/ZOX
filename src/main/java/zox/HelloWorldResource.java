@@ -69,8 +69,7 @@ public class HelloWorldResource {
         
         dao.insert("Schalalala");
         log.info("Entity manager insert");
-        Person p=new Person();
-        p.setName("Jochen");
+        Person p=new Person("Jochen");
         p.setEmail("jstaerk@usegroup.de");
         DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
         

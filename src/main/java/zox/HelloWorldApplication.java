@@ -8,6 +8,7 @@ import java.util.function.IntSupplier;
 
 import javax.persistence.EntityManager;
 
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 
@@ -16,6 +17,9 @@ import com.scottescue.dropwizard.entitymanager.ScanningEntityManagerBundle;
 
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
+import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.AuthValueFactoryProvider;
+import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Bootstrap;
@@ -96,7 +100,16 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 			environment.jersey().register(resource);
 			final AuthResource authr = new AuthResource(entityManager);
 			environment.jersey().register(authr);
-		   
+			environment.jersey().register(new AuthDynamicFeature(
+		            new BasicCredentialAuthFilter.Builder<Person>()
+		                .setAuthenticator(new UserAuthenticator())
+		                .setAuthorizer(new UserAuthorizer())
+		                .setRealm("SUPER SECRET STUFF")
+		                .buildAuthFilter()));
+		    environment.jersey().register(RolesAllowedDynamicFeature.class);
+		    //If you want to use @Auth to inject a custom Principal type into your resource
+		    environment.jersey().register(new AuthValueFactoryProvider.Binder<>(Person.class));
+		    
 		System.err.println("deb starting sender with domain " + configuration.getDomain() + " username "
 				+ configuration.getUsername());
 		RecipientComThread ct = new RecipientComThread();
