@@ -41,7 +41,7 @@ import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 
 @Path("/test/")
 @Produces(MediaType.TEXT_HTML)
-@DenyAll
+@PermitAll
 public class TestResource {
 
 	private EntityManager entityManager;
@@ -56,6 +56,11 @@ public class TestResource {
 	@PermitAll
 	@UnitOfWork(transactional = true)
 	public AuthView sayHello(@PathParam("id") String id) {
+		
+		PersonService ps=new PersonService(entityManager);
+		ps.dbInitialEntries();
+		System.err.println("test");
+		/*
 		FileRepositoryBuilder builder = new FileRepositoryBuilder();
 		try {
 			Repository repository = builder.setGitDir(new File("/Users/jstaerk/workspace/ZUV/.git"))
@@ -108,7 +113,7 @@ public class TestResource {
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		return new AuthView("repo fail");
 
 	}

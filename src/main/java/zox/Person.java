@@ -28,6 +28,9 @@ public class Person extends PrincipalImpl {
     
     @Column
     private String name;
+    
+    @Column
+    private String password;
 
     @Column
     private String email;
@@ -43,6 +46,14 @@ public class Person extends PrincipalImpl {
     @JsonProperty
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String pwd) {
+        this.password = pwd;
     }
 
     @JsonProperty
