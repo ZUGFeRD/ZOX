@@ -4,11 +4,16 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.function.IntSupplier;
 
 import javax.persistence.EntityManager;
+import javax.ws.rs.GET;
+import javax.ws.rs.QueryParam;
 
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 
@@ -16,6 +21,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.scottescue.dropwizard.entitymanager.EntityManagerBundle;
 import com.scottescue.dropwizard.entitymanager.ScanningEntityManagerBundle;
 import com.scottescue.dropwizard.entitymanager.UnitOfWork;
+import com.scottescue.dropwizard.entitymanager.UnitOfWorkAwareProxyFactory;
 
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -74,13 +80,13 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 
 					while (tables.next()) {
 						/*
-						 * for (int i = 1; i <= columnsNumber; i++) { if (i > 1)
-						 * System.out.print(",  "); String columnValue = tables.getString(i);
-						 * System.out.print(i+":"+columnValue + " " + rsmd.getColumnName(i)); }
-						 */
+						  for (int i = 1; i <= columnsNumber; i++) { if (i > 1)
+						  System.out.print(",  "); String columnValue = tables.getString(i);
+						  System.out.print(i+":"+columnValue + " " + rsmd.getColumnName(i)); }
+						 
 
-						System.out.println(tables.getString(3));
-						if (tables.getString(3).equals("PERSON")) {
+						System.out.println(tables.getString(3));*/
+						if (tables.getString(3).equals("PEOPLE")) {
 							tableExists = true;
 						}
 					}
@@ -98,10 +104,9 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 		environment.jersey().register(resource);
 		final TestResource testr = new TestResource(entityManager);
 		environment.jersey().register(testr);
-		PersonService ps=new PersonService(entityManager);
-		environment.jersey().register(ps);
-
-
+		
+		 PersonService ps=new PersonService(entityManager);
+		 
 		final AuthResource authr = new AuthResource(entityManager);
 		environment.jersey().register(authr);
 		environment.jersey()
@@ -114,7 +119,13 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 		
 		
 		if (!tableExists) {
-			
+			UnitOfWorkAwareProxyFactory proxyFactory = new UnitOfWorkAwareProxyFactory(entityManagerBundle);
+
+			PersonService personService = proxyFactory.create(
+			        PersonService.class, 
+			        EntityManager.class, 
+			        entityManagerBundle.getSharedEntityManager());
+			personService.dbInitialEntries();
 		}
 		RecipientComThread ct = new RecipientComThread();
 		ct.setDomain(configuration.getDomain()).setUsername(configuration.getUsername())

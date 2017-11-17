@@ -4,6 +4,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import com.codahale.metrics.annotation.Timed;
+import com.scottescue.dropwizard.entitymanager.EntityManagerBundle;
 import com.scottescue.dropwizard.entitymanager.UnitOfWork;
 
 public class PersonService {
@@ -11,6 +12,9 @@ public class PersonService {
 	protected EntityManager em;
 	public PersonService(EntityManager entityManager) {
 		em=entityManager;
+	}
+	public PersonService(EntityManagerBundle eb) {
+		em=eb.getSharedEntityManager();
 	}
 
 	@Timed
