@@ -12,6 +12,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.QueryParam;
 
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+import org.hibernate.SessionEventListener;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.skife.jdbi.v2.DBI;
@@ -30,6 +31,7 @@ import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.jdbi.DBIFactory;
+import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.views.ViewBundle;
@@ -44,20 +46,27 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 		return "hello-world";
 	}
 
-	private final EntityManagerBundle<HelloWorldConfiguration> entityManagerBundle = new ScanningEntityManagerBundle<HelloWorldConfiguration>(
-			"zox") { /* zox is the package to be scanned for JPA annotations */
-		@Override
-		public DataSourceFactory getDataSourceFactory(HelloWorldConfiguration configuration) {
-			return configuration.getDataSourceFactory();
-		}
-	};
+	private EntityManagerBundle<HelloWorldConfiguration> entityManagerBundle;
 
 	@Override
 	public void initialize(Bootstrap<HelloWorldConfiguration> bootstrap) {
 		bootstrap.addBundle(new AssetsBundle("/assets/", "/"));
 		bootstrap.addBundle(new ViewBundle<HelloWorldConfiguration>());
+		 
+		 entityManagerBundle= new ScanningEntityManagerBundle<HelloWorldConfiguration>(
+					"zox") { /* zox is the package to be scanned for JPA annotations */
+				@Override
+				public DataSourceFactory getDataSourceFactory(HelloWorldConfiguration configuration) {
+					return configuration.getDataSourceFactory();
+				}
+			};
 		bootstrap.addBundle(entityManagerBundle);
-		
+		bootstrap.addBundle(new MigrationsBundle<HelloWorldConfiguration>() {
+	        @Override
+	            public DataSourceFactory getDataSourceFactory(HelloWorldConfiguration configuration) {
+	                return configuration.getDataSourceFactory();
+	            }
+	    });
 	}
 
 	@Override
@@ -68,8 +77,7 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 
 		boolean tableExists = false;
 		final ISupplierDAO dao = jdbi.onDemand(ISupplierDAO.class);
-		
-
+					
 		final EntityManager entityManager = entityManagerBundle.getSharedEntityManager();
 		try (Handle h = jdbi.open()) {
 			try (Connection c = h.getConnection()) {
