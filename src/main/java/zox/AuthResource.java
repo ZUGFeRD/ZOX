@@ -24,7 +24,7 @@ import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 public class AuthResource {
 
 	private EntityManager entityManager;
-	private Logger log = Logger.getLogger(HBCI.class);
+	private Logger log = Logger.getLogger(AuthResource.class);
 	GoogleAuthenticator gAuth = null;
 	GoogleAuthenticatorKey key = null;
 

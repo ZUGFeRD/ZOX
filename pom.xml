@@ -3,8 +3,8 @@
 
 	<!-- compile with /opt/local/bin/mvn clean package, start with java -jar 
 		target/zox-0.2.3-SNAPSHOT.jar server hello-world.yml derby command line tool 
-		java -cp target/zox-0.2.3-SNAPSHOT.jar org.apache.derby.tools.ij ij> protocol 
-		'jdbc:derby:'; ij> connect 'embeddedDerbyDataDirectory'; -->
+		java -cp target/zox-0.2.7-SNAPSHOT.jar org.apache.derby.tools.ij
+		 ij> protocol 'jdbc:derby:'; ij> connect 'embeddedDerbyDataDirectory'; -->
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.mustangproject</groupId>
 	<artifactId>zox</artifactId>
@@ -126,12 +126,6 @@
 			<artifactId>dropwizard-auth</artifactId>
 			<version>${dropwizard.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>io.dropwizard</groupId>
-			<artifactId>dropwizard-migrations</artifactId>
-			<version>${dropwizard.version}</version>
-		</dependency>
-
 		<!-- Smack -->
 		<dependency>
 			<groupId>org.igniterealtime.smack</groupId>

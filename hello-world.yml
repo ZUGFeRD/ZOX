@@ -19,13 +19,13 @@ database:
   # the name of your JDBC driver
   driverClass: org.apache.derby.jdbc.EmbeddedDriver
 
-  # the username
-  user: test
+  # the username. It's also the scope so that should match the database Name=directory name
+  user: embeddedDerbyDataDirectory
   
   logValidationErrors: true
 
-  # the password
-  password: test
+  # the password, irrelevant
+  password: test2
 
   # the JDBC URL
   url: jdbc:derby:embeddedDerbyDataDirectory;create=true
@@ -33,8 +33,9 @@ database:
   # any properties specific to your JDBC driver:
   properties:
     charSet: UTF-8
-    hibernate.dialect: org.hibernate.dialect.DerbyDialect
-    hibernate.hbm2ddl.auto: create
+    # we're on derby 10.11 but 10.7 seems to be the closest version which had a dialect change
+    hibernate.dialect: org.hibernate.dialect.DerbyTenSevenDialect
+    hibernate.hbm2ddl.auto: update
 
   # the maximum amount of time to wait on an empty pool before throwing an exception
   maxWaitForConnection: 1s

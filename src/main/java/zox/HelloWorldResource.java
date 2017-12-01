@@ -74,7 +74,6 @@ public class HelloWorldResource {
         DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
         
         PersonService ps=new PersonService(entityManager);
-        ps.dbInitialEntries();
         p.setBirthday(dtf.parseDateTime("1980-10-31"));
         entityManager.persist(p);
         entityManager.flush();
