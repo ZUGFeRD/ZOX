@@ -8,7 +8,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.mustangproject</groupId>
 	<artifactId>zox</artifactId>
-	<version>0.2.7-SNAPSHOT</version>
+	<version>0.2.8-SNAPSHOT</version>
 	<developers>
 		<developer>
 			<id>jstaerk</id>
@@ -125,6 +125,12 @@
 			<groupId>io.dropwizard</groupId>
 			<artifactId>dropwizard-auth</artifactId>
 			<version>${dropwizard.version}</version>
+		</dependency>
+		<dependency>
+   			<groupId>io.dropwizard</groupId>
+    			<artifactId>dropwizard-forms</artifactId>
+    			<version>${dropwizard.version}</version>
+    			<type>pom</type>
 		</dependency>
 		<!-- Smack -->
 		<dependency>

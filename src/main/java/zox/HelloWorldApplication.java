@@ -1,5 +1,6 @@
 package zox;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -11,6 +12,7 @@ import javax.persistence.EntityManager;
 import javax.ws.rs.GET;
 import javax.ws.rs.QueryParam;
 
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.hibernate.SessionEventListener;
 import org.joda.time.format.DateTimeFormat;
@@ -98,6 +100,13 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 			// If you want to use @Auth to inject a custom Principal type into your resource
 			environment.jersey().register(new AuthValueFactoryProvider.Binder<>(Person.class));
 			
+			 environment.jersey().register(MultiPartFeature.class);
+			
+			// other init tasks
+			 
+			 if (!new File("./uploads").exists()) {
+				 (new File("./uploads")).mkdirs();
+			 }
 
 		RecipientComThread ct = new RecipientComThread();
 		ct.setDomain(configuration.getDomain()).setUsername(configuration.getUsername())
