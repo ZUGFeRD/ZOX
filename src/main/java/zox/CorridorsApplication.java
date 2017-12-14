@@ -37,9 +37,9 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.views.ViewBundle;
 
-public class HelloWorldApplication extends Application<HelloWorldConfiguration> {
+public class CorridorsApplication extends Application<CorridorsConfiguration> {
 	public static void main(String[] args) throws Exception {
-		new HelloWorldApplication().run(args);
+		new CorridorsApplication().run(args);
 	}
 
 	@Override
@@ -47,17 +47,17 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 		return "hello-world";
 	}
 
-	private EntityManagerBundle<HelloWorldConfiguration> entityManagerBundle;
+	private EntityManagerBundle<CorridorsConfiguration> entityManagerBundle;
 
 	@Override
-	public void initialize(Bootstrap<HelloWorldConfiguration> bootstrap) {
+	public void initialize(Bootstrap<CorridorsConfiguration> bootstrap) {
 		bootstrap.addBundle(new AssetsBundle("/assets/", "/"));
-		bootstrap.addBundle(new ViewBundle<HelloWorldConfiguration>());
+		bootstrap.addBundle(new ViewBundle<CorridorsConfiguration>());
 		 
-		 entityManagerBundle= new ScanningEntityManagerBundle<HelloWorldConfiguration>(
+		 entityManagerBundle= new ScanningEntityManagerBundle<CorridorsConfiguration>(
 					"zox") { /* zox is the package to be scanned for JPA annotations */
 				@Override
-				public DataSourceFactory getDataSourceFactory(HelloWorldConfiguration configuration) {
+				public DataSourceFactory getDataSourceFactory(CorridorsConfiguration configuration) {
 					return configuration.getDataSourceFactory();
 				}
 			};
@@ -65,7 +65,7 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 	}
 
 	@Override
-	public void run(HelloWorldConfiguration configuration, Environment environment) {
+	public void run(CorridorsConfiguration configuration, Environment environment) {
 
 		final DBIFactory factory = new DBIFactory();
 		final DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(), "derby");
@@ -79,7 +79,7 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 				configuration.getBank_user(), configuration.getBank_rdhfile(), configuration.getBank_rdhpassphrase(),
 				configuration.getBank_url(), dao, entityManager);
 		environment.jersey().register(resource);
-		final TestResource testr = new TestResource(entityManager);
+		final PayResource testr = new PayResource(entityManager);
 		environment.jersey().register(testr);
 		 
 			UnitOfWorkAwareProxyFactory proxyFactory = new UnitOfWorkAwareProxyFactory(entityManagerBundle);

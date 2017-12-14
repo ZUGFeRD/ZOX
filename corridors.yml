@@ -1,7 +1,3 @@
-template: Hello, %s!
-
-defaultName: Stranger
-
 username: zox
 domain: jochens-air.fritz.box
 password: zox

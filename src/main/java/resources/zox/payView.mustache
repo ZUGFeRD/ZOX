@@ -1,0 +1,18 @@
+<DOCTYPE html> 
+<html lang="de"> 
+	<head> 
+		<meta charset="utf-8">
+	</head>
+	<body>
+
+		
+		<form enctype="multipart/form-data" method="POST" action="UploadFile">
+     <label for="fileUpload">File</label> <input type="file" id="fileUpload" name="file"/><br/>
+     <label for="amount">Amount</label> <input id="amount" name="amount"/><br/>
+     <label for="iban">IBAN</label> <input id="iban" name="iban"/><br/>
+     <label for="purpose">Purpose</label> <input id="purpose" name="purpose"/><br/>
+     <input type="hidden" id="fileName" name="fileName"/>
+     <input type="submit" value="Upload"/>
+   </form>
+	</body>
+</html>
